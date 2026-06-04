@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAB & Rancangan Mini Podcast Perusahaan</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-bg': '#F7F5F2',
+                        'brand-card': '#FFFFFF',
+                        'brand-primary': '#D97706', 
+                        'brand-primary-hover': '#B45309',
+                        'brand-text': '#292524',
+                        'brand-muted': '#78716C',
+                        'cat-audio': '#0369A1',
+                        'cat-video': '#BE123C',
+                        'cat-light': '#EAB308',
+                        'cat-acc': '#15803D'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F7F5F2;
+            color: #292524;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 380px;
+            }
+        }
+
+        .tab-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .tab-active {
+            background-color: #D97706;
+            color: white;
+            border-color: #D97706;
+        }
+        
+        .tab-inactive {
+            background-color: white;
+            color: #78716C;
+            border-color: #E7E5E4;
+        }
+
+        .tab-inactive:hover {
+            background-color: #F5F5F4;
+            color: #292524;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F7F5F2; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D6D3D1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #A8A29E; 
+        }
+    </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="antialiased min-h-screen pb-12">
+
+    <nav class="bg-white border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🎙️</span>
+                    <span class="font-bold text-xl tracking-tight">ARTOUR Studio</span>
+                </div>
+                <div class="text-sm font-medium text-brand-muted">
+                    Interactive RAB & Setup Guide
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        
+        <header class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-brand-text mb-3">Rancangan & Anggaran Mini Podcast</h1>
+            <p class="text-lg text-brand-muted max-w-3xl leading-relaxed">
+                Platform interaktif ini menyajikan rekomendasi peralatan dan Rencana Anggaran Biaya (RAB) untuk studio mini podcast perusahaan. Silakan pilih kelas paket di bawah ini untuk melihat rincian peralatan, kegunaannya, dan visualisasi alokasi dana.
+            </p>
+        </header>
+
+        <section class="mb-8">
+            <div class="flex flex-col sm:flex-row gap-3 p-1 bg-stone-200/50 rounded-xl w-fit">
+                <button onclick="setTier('ekonomis')" id="btn-ekonomis" class="tab-btn px-6 py-2.5 rounded-lg font-semibold text-sm border shadow-sm tab-active">
+                    📈 Paket Ekonomis
+                </button>
+                <button onclick="setTier('standar')" id="btn-standar" class="tab-btn px-6 py-2.5 rounded-lg font-semibold text-sm border shadow-sm tab-inactive">
+                    🎬 Paket Standar
+                </button>
+                <button onclick="setTier('profesional')" id="btn-profesional" class="tab-btn px-6 py-2.5 rounded-lg font-semibold text-sm border shadow-sm tab-inactive">
+                    ⭐ Paket Profesional
+                </button>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            
+            <div class="lg:col-span-2 flex flex-col gap-6">
+                <!-- Detail Paket Card -->
+                <div class="bg-brand-card rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+                    <div class="mb-6 border-b border-stone-100 pb-6">
+                        <h2 id="tier-title" class="text-2xl font-bold text-brand-text mb-2">Memuat...</h2>
+                        <p id="tier-desc" class="text-brand-muted mb-6 leading-relaxed">Memuat deskripsi paket...</p>
+                        
+                        <!-- Kelebihan & Kekurangan (Dinamic) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                                <h4 class="font-bold text-emerald-800 flex items-center gap-2 mb-2">
+                                    <span>✅</span> Kelebihan
+                                </h4>
+                                <ul id="tier-pros" class="list-disc pl-5 text-sm text-emerald-700 space-y-1">
+                                </ul>
+                            </div>
+                            <div class="bg-rose-50 rounded-xl p-4 border border-rose-100">
+                                <h4 class="font-bold text-rose-800 flex items-center gap-2 mb-2">
+                                    <span>⚠️</span> Kekurangan
+                                </h4>
+                                <ul id="tier-cons" class="list-disc pl-5 text-sm text-rose-700 space-y-1">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabel RAB -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-stone-50 border-y border-stone-200 text-sm font-semibold text-brand-muted">
+                                    <th class="py-3 px-4">Kategori</th>
+                                    <th class="py-3 px-4">Perangkat & Kegunaan</th>
+                                    <th class="py-3 px-4 text-center">Qty</th>
+                                    <th class="py-3 px-4 text-right">Harga Satuan</th>
+                                    <th class="py-3 px-4 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rab-table-body" class="text-sm divide-y divide-stone-100">
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-stone-50 font-bold text-brand-text border-t border-stone-300">
+                                    <td colspan="4" class="py-4 px-4 text-right uppercase tracking-wider text-sm">Grand Total Estimasi</td>
+                                    <td id="grand-total-table" class="py-4 px-4 text-right text-brand-primary text-lg">Rp 0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Catatan Umum -->
+                <div class="bg-brand-card rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+                    <h3 class="text-lg font-bold mb-4">Catatan Penting Rancangan</h3>
+                    <ul class="list-disc pl-5 space-y-2 text-brand-muted text-sm leading-relaxed">
+                        <li>Harga yang tertera adalah estimasi rata-rata dari e-commerce Indonesia (Tokopedia/Shopee/Eraspace) per kuartal saat ini. Harga dapat berubah sewaktu-waktu.</li>
+                        <li>Dianjurkan untuk mengalokasikan dana tak terduga (contingency fund) sebesar 10% dari grand total untuk kebutuhan mendadak seperti lakban, baterai ekstra, atau ongkos kirim.</li>
+                        <li>Pembelian perangkat lunak (software) recording seperti Adobe Audition atau langganan platform hosting podcast tidak termasuk dalam RAB ini karena biasanya masuk pengeluaran operasional bulanan (OPEX).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 flex flex-col gap-6">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-brand-card rounded-2xl shadow-sm border border-stone-200 p-5 flex flex-col">
+                        <span class="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-1">Total Budget</span>
+                        <span id="summary-total" class="text-xl lg:text-2xl font-bold text-brand-text">Rp 0</span>
+                    </div>
+                    <div class="bg-brand-card rounded-2xl shadow-sm border border-stone-200 p-5 flex flex-col">
+                        <span class="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-1">Jumlah Item</span>
+                        <span id="summary-items" class="text-xl lg:text-2xl font-bold text-brand-text">0 Perangkat</span>
+                    </div>
+                </div>
+
+                <div class="bg-brand-card rounded-2xl shadow-sm border border-stone-200 p-6 flex flex-col items-center">
+                    <h3 class="text-sm font-semibold text-brand-muted uppercase tracking-wider mb-6 self-start w-full text-center">Alokasi Anggaran</h3>
+                    
+                    <div class="chart-container">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-stone-800 rounded-2xl shadow-sm p-6 text-white">
+                    <h3 class="font-bold text-lg mb-2">💡 Tips Akustik Ruangan</h3>
+                    <p class="text-sm text-stone-300 leading-relaxed mb-4">
+                        Peralatan mahal tidak akan maksimal di ruangan bergema. Sisihkan budget untuk meredam pantulan suara:
+                    </p>
+                    <ul class="text-sm text-stone-300 space-y-2">
+                        <li>▪️ Gunakan karpet tebal menutupi lantai ubin.</li>
+                        <li>▪️ Pasang panel akustik busa di dinding kosong (minimal seberang pembicara).</li>
+                        <li>▪️ Gunakan tirai kain tebal berlapis pada area jendela.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const rabData = {
+            ekonomis: {
+                title: "Paket Ekonomis (Audio Sentris)",
+                desc: "Rancangan ideal untuk memulai dengan investasi minim. Berfokus pada kualitas audio podcast yang sangat baik, sementara untuk visual memanfaatkan smartphone perusahaan/karyawan yang sudah ada.",
+                pros: [
+                    "Investasi awal sangat terjangkau",
+                    "Minim resiko jika podcast mandek di tengah jalan",
+                    "Kualitas suara sudah berstandar podcast profesional",
+                    "Sangat mudah dioperasikan (plug and play)"
+                ],
+                cons: [
+                    "Kualitas visual sangat bergantung pada kamera Smartphone",
+                    "Smartphone rawan overheat jika merekam berjam-jam",
+                    "Tampilan setup kurang prestisius jika mengundang tamu VIP eksternal"
+                ],
+                items: [
+                    { cat: "Audio", name: "Rode PodMic (Dynamic Mic)", desc: "Mikrofon jenis dinamis yang fokus menangkap suara vokal dari jarak dekat. Efektif memblokir suara gema ruangan dan suara AC.", qty: 2, price: 1750000, source: "Tokopedia (Audio Store)" },
+                    { cat: "Audio", name: "Zoom PodTrak P4 (Mixer/Recorder)", desc: "Otak dari sistem audio. Alat ini menerima colokan mic, mengatur volume, dan merekam suara langsung ke dalam SD Card tanpa perlu dicolok ke laptop.", qty: 1, price: 3500000, source: "Tokopedia (Audio Store)" },
+                    { cat: "Audio", name: "Audio-Technica ATH-M20x (Headphone)", desc: "Headphone monitor agar host dan tamu bisa mendengar suara mereka sendiri secara real-time. Penting agar mereka sadar jika suara terlalu pelan/jauh dari mic.", qty: 2, price: 750000, source: "Shopee (Official Store)" },
+                    { cat: "Aksesoris", name: "Stand Mic Meja / Arm Standar", desc: "Tiang penyangga mic. Menggunakan sistem arm (seperti lampu belajar) agar mudah ditarik mendekat ke mulut pembicara tanpa menghalangi meja.", qty: 2, price: 250000, source: "Marketplace Umum" },
+                    { cat: "Aksesoris", name: "Kabel XLR to XLR 3 Meter", desc: "Kabel audio analog berukuran besar untuk menyambungkan Mikrofon (Rode PodMic) ke Mixer (Zoom P4).", qty: 2, price: 150000, source: "Marketplace Umum" },
+                    { cat: "Video", name: "Smartphone Pribadi/Kantor", desc: "Menggunakan kamera HP (minimal iPhone 11 atau Android flagship) yang diset ke mode 4K/1080p untuk merekam video. Menekan budget secara signifikan.", qty: 2, price: 0, source: "Aset Internal" },
+                    { cat: "Video", name: "Tripod HP Meja", desc: "Penyangga HP agar stabil dan tidak goyang selama berjam-jam merekam.", qty: 2, price: 100000, source: "Marketplace Umum" },
+                    { cat: "Lighting", name: "Ringlight 18 inch + Stand", desc: "Sumber cahaya dasar untuk menerangi wajah pembicara agar video dari HP tidak terlihat gelap dan bersemut (noise).", qty: 1, price: 350000, source: "Marketplace Umum" },
+                    { cat: "Aksesoris", name: "SD Card Sandisk 64GB Extreme", desc: "Kartu memori kecepatan tinggi untuk dicolok ke Zoom P4 sebagai media penyimpanan hasil rekaman suara.", qty: 1, price: 200000, source: "Official Store" }
+                ]
+            },
+            standar: {
+                title: "Paket Standar (Video Podcast)",
+                desc: "Standar industri untuk corporate YouTube video podcast. Menggunakan kamera mirrorless dan tata cahaya proper. Setup ini adalah 'Sweet Spot' terbaik antara harga dan performa.",
+                pros: [
+                    "Kualitas visual dan audio sudah standar konten YouTube Profesional",
+                    "Kamera dapat menghasilkan efek 'bokeh' (background blur) yang estetik",
+                    "Masih bisa dioperasikan oleh 1 orang tanpa butuh teknisi khusus",
+                    "Tampilan studio terlihat meyakinkan untuk narasumber eksternal"
+                ],
+                cons: [
+                    "Membutuhkan sedikit pemahaman tentang setting kamera (ISO, Aperture, Shutter)",
+                    "Butuh PC/Laptop spesifikasi menengah jika ingin melakukan Live Streaming",
+                    "Manajemen file (video & audio) lebih besar, butuh Hardisk Eksternal tambahan"
+                ],
+                items: [
+                    { cat: "Audio", name: "Shure MV7 (USB/XLR Mic)", desc: "Mikrofon hybrid legendaris. Sangat jernih, tahan bising, dan memiliki software sendiri untuk membuat suara otomatis terdengar seperti penyiar radio.", qty: 2, price: 4500000, source: "Shure Official Store" },
+                    { cat: "Audio", name: "Rodecaster Duo (Digital Mixer)", desc: "Mixer canggih all-in-one. Dilengkapi pemroses suara pintar terintegrasi, tombol efek suara (jingle/tepuk tangan), dan layar sentuh intuitif.", qty: 1, price: 8900000, source: "Tokopedia (Rode Official)" },
+                    { cat: "Audio", name: "Audio-Technica ATH-M40x", desc: "Headphone monitoring kelas menengah. Sangat akurat dalam merepresentasikan suara, kabel bisa dilepas pasang (awet).", qty: 2, price: 1590000, source: "Shopee (Official Store)" },
+                    { cat: "Aksesoris", name: "Elgato Wave Mic Arm LP", desc: "Tiang mic model 'Low Profile' (merayap di atas meja). Sangat estetik dan tidak menutupi wajah pembicara saat terekam kamera.", qty: 2, price: 1800000, source: "Tokopedia" },
+                    { cat: "Video", name: "Sony ZV-E10 Kit Lens", desc: "Kamera mirrorless khusus vlogging/podcast. Memiliki fitur autofocus mata yang sangat cepat, jadi tidak perlu takut wajah blur meski bergerak.", qty: 2, price: 12500000, source: "Sony Center" },
+                    { cat: "Video", name: "Tripod Kamera Takara/Somita", desc: "Penyangga kokoh khusus kamera berbobot sedang. Wajib agar frame kamera presisi dan aman dari benturan.", qty: 2, price: 350000, source: "Marketplace Umum" },
+                    { cat: "Lighting", name: "Godox SL60W + Softbox 60x90", desc: "Lampu studio bertenaga besar (Key Light). Softbox berfungsi melembutkan cahaya agar bayangan di wajah narasumber terlihat natural dan profesional.", qty: 2, price: 2100000, source: "Tokopedia (Godox)" },
+                    { cat: "Video", name: "Elgato Cam Link 4K (Capture Card)", desc: "Alat pengubah sinyal. Berfungsi menipu laptop/PC agar mengenali kamera Sony mahal ini sebagai 'Webcam' biasa (untuk Zoom/OBS/Live streaming).", qty: 2, price: 2100000, source: "Tokopedia" },
+                    { cat: "Aksesoris", name: "Kabel XLR, Kabel Micro HDMI, SD Card", desc: "Paket perkabelan: XLR untuk Mic ke Mixer, Micro HDMI untuk Kamera ke Cam Link, dan SD card memori untuk Kamera.", qty: 1, price: 1500000, source: "Marketplace Umum" }
+                ]
+            },
+            profesional: {
+                title: "Paket Profesional (Studio Class)",
+                desc: "Kualitas penyiaran komersial kelas atas untuk image perusahaan yang premium. Setup multi-kamera cinema line 4K dan tata cahaya broadcast standar TV.",
+                pros: [
+                    "Kualitas gambar (Cinema 4K) dan audio (Broadcast level) tertinggi, setara studio TV",
+                    "Image dan branding perusahaan sangat prestisius di mata klien/tamu VVIP",
+                    "Dapat melakukan perpindahan angle kamera (switching) secara live tanpa perlu editing paska-produksi"
+                ],
+                cons: [
+                    "Budget pengadaan sangat tinggi (belum termasuk PC Editing High-End)",
+                    "Wajib memiliki teknisi/operator khusus di balik layar saat produksi berjalan",
+                    "Ukuran file sangat raksasa (butuh infrastruktur NAS/Server storage besar)",
+                    "Butuh treatment akustik ruangan yang serius agar sepadan dengan alatnya"
+                ],
+                items: [
+                    { cat: "Audio", name: "Shure SM7B (Legendary Mic)", desc: "Mikrofon standar emas industri podcast (dipakai Joe Rogan, Deddy Corbuzier). Suara sangat hangat, tebal, dan sangat kebal terhadap noise sekitar.", qty: 2, price: 7500000, source: "Shure Official Store" },
+                    { cat: "Audio", name: "Rodecaster Pro II (Mixer Studio)", desc: "Pusat komando audio kelas atas. Pre-amp internalnya sangat kuat (cukup untuk mengangkat mic SM7B), fitur routing komplit, dan prosesor audio sekelas studio rekaman musik.", qty: 1, price: 12500000, source: "Rode Official" },
+                    { cat: "Audio", name: "Audio-Technica ATH-M50x", desc: "Headphone standar industri audio global. Isolasi suara luar biasa, sangat detail memonitor cacat atau noise sekecil apapun.", qty: 2, price: 2500000, source: "Audio Store" },
+                    { cat: "Aksesoris", name: "Rode PSA1+ Premium Boom Arm", desc: "Tiang penyangga mic paling senyap dan stabil di pasaran. Tidak ada bunyi per logam saat digeser, menahan bobot berat mic SM7B dengan sempurna.", qty: 2, price: 2300000, source: "Rode Official" },
+                    { cat: "Video", name: "Sony FX30 (Cinema Camera)", desc: "Kamera kelas sinema (bukan sekadar mirrorless). Didesain khusus untuk merekam video resolusi 4K berjam-jam tanpa akan pernah overheat, warnanya setara film bioskop.", qty: 2, price: 30000000, source: "Sony Center" },
+                    { cat: "Video", name: "Lensa Sigma 16mm f/1.4 DC DN", desc: "Lensa aperture sangat lebar (f/1.4). Menyerap banyak sekali cahaya (gambar sangat jernih di ruangan redup) dan memberikan efek blur latar belakang yang dramatis.", qty: 2, price: 6500000, source: "Camera Store" },
+                    { cat: "Video", name: "Tripod Video Fluid Head Professional", desc: "Tripod berat dengan kepala (head) berbasis cairan (fluid). Menjamin pergerakan kamera sangat mulus, menahan beban alat yang berat.", qty: 2, price: 2500000, source: "Camera Store" },
+                    { cat: "Lighting", name: "Amaran 100x Bi-Color + Light Dome", desc: "Lampu studio profesional dimana kita bisa memutar knob untuk mengganti warna dari putih terang ke kuning hangat (Bi-Color) menyesuaikan mood ruangan.", qty: 2, price: 4500000, source: "Tokopedia" },
+                    { cat: "Lighting", name: "RGB Fill Light Pipa (Background)", desc: "Lampu tabung warna-warni (RGB). Ditaruh di latar belakang atau lantai untuk menembakkan warna (misal: warna logo perusahaan) ke dinding, memberi dimensi dan estetika.", qty: 2, price: 800000, source: "Marketplace Umum" },
+                    { cat: "Video", name: "ATEM Mini Pro (Video Switcher)", desc: "Alat seperti yang ada di studio TV. Operator bisa memencet tombol 1 dan 2 untuk berpindah tangkapan layar antar kamera secara LIVE, memotong drastis waktu editing video.", qty: 1, price: 6500000, source: "Blackmagic Reseller" },
+                    { cat: "Aksesoris", name: "Kabel Mogami, Dummy Battery, SD Extreme Pro", desc: "Kabel audio kasta tertinggi anti intervensi sinyal radio, baterai dummy (colok listrik terus tanpa perlu ganti baterai kamera), dan SD card super cepat.", qty: 1, price: 3500000, source: "Marketplace Umum" }
+                ]
+            }
+        };
+
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(number);
+        };
+
+        let budgetChartInstance = null;
+
+        const catColors = {
+            'Audio': '#0369A1', 
+            'Video': '#BE123C', 
+            'Lighting': '#EAB308', 
+            'Aksesoris': '#15803D' 
+        };
+
+        const setTier = (tierKey) => {
+            // Update Tab Button Styles
+            ['ekonomis', 'standar', 'profesional'].forEach(t => {
+                const btn = document.getElementById(`btn-${t}`);
+                if (t === tierKey) {
+                    btn.classList.remove('tab-inactive');
+                    btn.classList.add('tab-active');
+                } else {
+                    btn.classList.remove('tab-active');
+                    btn.classList.add('tab-inactive');
+                }
+            });
+
+            const data = rabData[tierKey];
+            
+            // Update Headers
+            document.getElementById('tier-title').textContent = data.title;
+            document.getElementById('tier-desc').textContent = data.desc;
+
+            // Update Pros & Cons
+            const prosList = document.getElementById('tier-pros');
+            prosList.innerHTML = data.pros.map(pro => `<li>${pro}</li>`).join('');
+            
+            const consList = document.getElementById('tier-cons');
+            consList.innerHTML = data.cons.map(con => `<li>${con}</li>`).join('');
+
+            // Update Table
+            const tbody = document.getElementById('rab-table-body');
+            tbody.innerHTML = '';
+            
+            let grandTotal = 0;
+            let totalItemsCount = 0;
+            
+            const categoryTotals = {
+                'Audio': 0,
+                'Video': 0,
+                'Lighting': 0,
+                'Aksesoris': 0
+            };
+
+            data.items.forEach(item => {
+                const totalHarga = item.qty * item.price;
+                grandTotal += totalHarga;
+                totalItemsCount += item.qty;
+                
+                if(categoryTotals[item.cat] !== undefined) {
+                    categoryTotals[item.cat] += totalHarga;
+                }
+
+                const catBadgeClass = 
+                    item.cat === 'Audio' ? 'bg-sky-100 text-sky-800 border border-sky-200' :
+                    item.cat === 'Video' ? 'bg-rose-100 text-rose-800 border border-rose-200' :
+                    item.cat === 'Lighting' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                    'bg-emerald-100 text-emerald-800 border border-emerald-200';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-stone-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-4 px-4 align-top w-24">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${catBadgeClass}">
+                            ${item.cat}
+                        </span>
+                    </td>
+                    <td class="py-4 px-4 align-top">
+                        <div class="font-bold text-brand-text text-base mb-1">${item.name}</div>
+                        <div class="text-xs text-brand-muted leading-relaxed max-w-lg">${item.desc}</div>
+                        <div class="text-[10px] text-stone-400 mt-2 uppercase tracking-wide">Sumber: ${item.source}</div>
+                    </td>
+                    <td class="py-4 px-4 text-center align-top font-semibold text-lg">${item.qty}</td>
+                    <td class="py-4 px-4 text-right align-top text-stone-500 whitespace-nowrap">${formatRupiah(item.price)}</td>
+                    <td class="py-4 px-4 text-right align-top font-bold text-brand-text whitespace-nowrap">${formatRupiah(totalHarga)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('grand-total-table').textContent = formatRupiah(grandTotal);
+            document.getElementById('summary-total').textContent = formatRupiah(grandTotal);
+            document.getElementById('summary-items').textContent = `${totalItemsCount} Unit`;
+
+            updateChart(categoryTotals);
+        };
+
+        const updateChart = (categoryTotals) => {
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            
+            const labels = Object.keys(categoryTotals);
+            const dataVals = Object.values(categoryTotals);
+            const bgColors = labels.map(label => catColors[label]);
+
+            if (budgetChartInstance) {
+                budgetChartInstance.destroy();
+            }
+
+            budgetChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataVals,
+                        backgroundColor: bgColors,
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { family: "'Inter', sans-serif", size: 12 },
+                                color: '#78716C',
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(41, 37, 36, 0.9)',
+                            titleFont: { family: "'Inter', sans-serif" },
+                            bodyFont: { family: "'Inter', sans-serif" },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += formatRupiah(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTier('ekonomis');
+        });
+
+    </script>
+</body>
+</html>
